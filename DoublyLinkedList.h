@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <iostream>
 
-
 using namespace std;
 
 template<typename T>
@@ -34,13 +33,13 @@ public:
 	{
 		Node* current = first_;
 
-        while(current->left != nullptr){
-            current = current ->left;
+        while(current -> left != nullptr){
+            current = current -> left;
         }
 
         while(current != nullptr){
             Node* temp = current;
-            current = current->right;
+            current = current -> right;
             delete temp;
         }
 	}
@@ -52,49 +51,50 @@ public:
 	}
 
 	int Size()
-	{
+    {
 		int size = 0;
 
-        Node* cur = first_;
+        Node* cur = first_;  //맨 왼쪽
 
-		while(cur){
-            cur = cur->left;//left로 쭉 밀어놓고 
-        }
-        while(cur){
-            cur = cur-> right;//오른쪽으로 가면서 전체 개수 세기
-            size++;
+        while(cur -> right != nullptr){
+            cur = cur -> right; 
+            size++;   //오른쪽으로 가면서 전체 개수 세기
         }
 
-		return size;
+		return size + 1;
 	}
 
 	void Print()
 	{
 		using namespace std;
 
-		Node* current = first_;
+		Node* current = first_; //3 
 
 		if (IsEmpty())
 			cout << "Empty" << endl;
+        
         else
 		{
 			cout << "Size = " << Size() << endl;
-			cout << " Forward: "; 
-            //        ->
-			while(current){
-                cout << current-> item;
-                current = current-> right;
-            }
-			cout << endl;
+			cout << " Forward: ";              // forward로 출력이 되려면 12345
 
-			cout << "Backward: "; //     <-
-			Node* current1 = first_;
+            while(current -> right != nullptr){
 
-            while(current1){
-                cout << current1-> item;
-                current1 = current1-> left;
+            cout << current -> item<<' '; // 3                       
+            current = current -> right;                     
+
             }
-			cout << endl;
+            cout << current -> item<<' ';// 4
+			cout << endl;//current 는 오른쪽 끝에 도달함.
+
+			cout << "Backward: "; // backward로 출력이 되려면 54321 이렇게 나와야 한다.
+
+            while(current->left != nullptr){
+                cout << current -> item<<' ';// 4 3
+                current = current -> left; //
+            }
+			cout << current -> item<<' ';
+            cout << endl;
 		}
 	}
 
@@ -102,13 +102,10 @@ public:
 	{
         Node* current = first_;
 
-        while( current && current->item != item){
+        while(current && current->item != item){
             current = current->right;
         }
         
-         while(current && current->item != item){
-            current = current-> left;
-        }
         return current;
 
 	}
@@ -124,60 +121,83 @@ public:
 			Node* current = first_-> right;
             Node* prev = first_;
             
-            while(prev != node){
+            while(prev-> item != node-> item){
 
             prev = current;
-            current = current-> right;
+            current = current -> right;
                 
-            }//node = prev, node-> right =current
+            }                                          //node = prev, node-> right =current
 
-            prev-> right = new Node;//prev = node;
-            Node * temp = prev -> right;// 노드 다음 새로운 공간 창출;
+            prev-> right = new Node;  
+            Node * temp = prev -> right;               // 노드 다음 새로운 공간 창출;
 
-            temp -> item = item;//그공간에 값 집어넣기.
-            temp -> right = current; //
+            temp -> item = item;
+                        
+            temp -> right = current;                     //오른쪽 잇고
+            current ->left = temp;
+            temp -> left = prev;                         //왼쪽 잇고.
 		}
 	}
 
 	void PushFront(T item)
-	{//아무것도 없을때 변수 if 제대로 못만듦 수정 요구함.
+	{
         Node* current = first_;
 
         if(IsEmpty()){
+
         first_ = new Node;
 
         first_ -> item = item;
+        first_ ->right = nullptr;
         first_ -> left = nullptr;
         
         return; 
         }
-		
 
-        while(current->left != nullptr){
-            current = current-> left;
-        }//맨왼쪽 노드 을 찾은거 아냐.
-
-        current->left = new Node;
-        Node* temp = current ->left;
+		else
+        {
+        current -> left = new Node;
+        
+        Node* temp = current -> left;
 
         temp -> item = item;
+
         temp -> left = nullptr;
-	}
+
+        temp-> right = current;
+
+        first_ = temp;
+
+        }
+    }
 
 	void PushBack(T item)
 	{
-		Node* current = first_;
+        if(IsEmpty()){
 
-        while(current->right != nullptr){
+        first_ = new Node;
 
-            current = current-> right;
+        first_ -> item = item;
+        first_ ->right = nullptr;
+        first_ -> left = nullptr;
+        
+        return; 
+        }
+
+		Node* current = first_;// 3이 first_
+
+        while(current -> right != nullptr){//만약에 오른쪽이 비지 않았다면 
+
+        current = current-> right;//맨 오른쪽 까지 가.
         }//맨 오른쪽 노드 을 찾은거 아냐.
 
-        current->right= new Node;
-        Node * temp = current->right;
+        current -> right = new Node;
+        Node * temp = current-> right;
 
         temp-> item = item;
         temp-> right = nullptr;
+
+        temp -> left = current;
     
 	}
 
@@ -189,19 +209,15 @@ public:
 			cout << "Nothing to Pop in PopFront()" << endl;
 			return;
 		}
-
 		assert(first_);
 
-        Node* current = first_->left;
-        Node* prev =first_;
-
-        while(current->left != nullptr){
-            current = current->left;
-            prev = current;
-        }//깨고 나오면 current는 맨 왼쪽 노드, prev는 그 전 노드가 되는 거겠지.
+        Node* current = first_;//nullptr;
+        Node* prev = first_ -> right;
 
         delete current;
-        prev->left = nullptr;
+        prev-> left = nullptr;
+        
+        prev = first_;
 	}
 
 	void PopBack()
@@ -217,41 +233,39 @@ public:
         Node* prev = first_;
 
         while(current -> right != nullptr){
-            current = current -> right;
             prev = current;
-        }//깨고 나오면 current는 맨 왼쪽 노드, prev는 그 전 노드가 되는 거겠지.
+            current = current -> right;
+        }
 
         delete current;
-        prev-> right = nullptr;
+        prev -> right = nullptr;
 		
 	}
 
 	void Reverse()
-	{//애매함.설명을  더해주지.
-		Node* current = first_;
-        Node* prev = first_ -> left;
+	{ //forward 1 2 3 4 가  4 3 2 1 이 됨 그러니까 1->right가 2여야 하는데 1->left가 2가 되는 거지.
 
-        while(current != nullptr){
-          
-            current ->left = prev;
-            prev = current;
-            current = current -> right;
-        }//current 는 널인데..?
-        prev = first_;
-        prev -> right = nullptr;
+		Node* current = first_; // 1임. 1->left는 2임. 근데 이걸 first-> left = prev이런 식인 거지.
+        Node* temp = nullptr; // prev는 2임.
 
-	}
+        while(current){
+
+            temp = current -> left;//
+            current -> left = current ->right;
+            current-> right = temp;
+            current = current -> left;
+        }
+        if (temp) {
+        first_ = temp->left;
+        first_->left = nullptr;
+        }
+
+    }
 
 	T Front()
 	{
 		assert(first_);
-        Node* current = first_;
-
-        while(current-> right != nullptr){
-            current = current-> right;
-        }
-        return current->item;
-
+        cout << first_->item; 
 	}
 
 	T Back()
@@ -260,8 +274,8 @@ public:
 
 		Node* current = first_;
 
-        while(current-> left != nullptr){
-            current = current-> left;
+        while(current-> right != nullptr){
+            current = current-> right;
         }
         return current->item;
 	}

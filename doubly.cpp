@@ -25,7 +25,7 @@ int main()
 	list.PushBack(5);
 	list.Print();
 
-	list.Reverse();
+	list.Reverse();                                  //pushback 뒤에 노드 두개 박살.
 	list.Print();
 
 	DoublyLinkedList<int>::Node* temp = list.Find(3);
